@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Tabel Kebenaran</title>
+    <style>
+        /* CSS untuk Tampilan Visual yang Menarik */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #16213e;
+            --primary-color: #0f3460;
+            --accent-color: #e94560;
+            --text-color: #dcdcdc;
+            --header-color: #ffffff;
+            --border-color: #0f3460;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-color);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            color: var(--header-color);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        header p {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        #expression-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #expression-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+        }
+
+        #generate-btn {
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--accent-color);
+            color: var(--header-color);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        #generate-btn:hover {
+            background-color: #ff5c7a;
+            transform: translateY(-2px);
+        }
+
+        .instructions {
+            background-color: rgba(15, 52, 96, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 0.85rem;
+        }
+
+        .instructions h3 {
+            color: var(--header-color);
+            margin-bottom: 10px;
+        }
+
+        .instructions code {
+            background-color: var(--bg-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .result-section h2 {
+            color: var(--header-color);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        #table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        thead {
+            background-color: var(--primary-color);
+            color: var(--header-color);
+            font-weight: 600;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: rgba(15, 52, 96, 0.3);
+        }
+        
+        .true { color: #50fa7b; font-weight: 600; }
+        .false { color: #ff5555; font-weight: 600; }
+
+        #error-message {
+            color: var(--accent-color);
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Generator Tabel Kebenaran</h1>
+            <p>Masukkan ekspresi logika untuk menghasilkan tabel kebenarannya secara otomatis.</p>
+        </header>
+
+        <div class="input-section">
+            <input type="text" id="expression-input" placeholder="Contoh: (p && q) || !r">
+            <button id="generate-btn">Buat Tabel</button>
+        </div>
+
+        <div class="instructions">
+            <h3>Cara Penggunaan:</h3>
+            <p>Gunakan variabel satu huruf (p, q, r, dst.). Operator yang didukung:</p>
+            <ul>
+                <li>Negasi (NOT): <code>!</code> (contoh: <code>!p</code>)</li>
+                <li>Konjungsi (AND): <code>&&</code> (contoh: <code>p && q</code>)</li>
+                <li>Disjungsi (OR): <code>||</code> (contoh: <code>p || q</code>)</li>
+                <li>Implikasi (IMPLIES): <code>-></code> (contoh: <code>p -> q</code>)</li>
+                <li>Biimplikasi (EQUALS): <code><-></code> (contoh: <code>p <-> q</code>)</li>
+                <li>Gunakan tanda kurung <code>()</code> untuk pengelompokan.</li>
+            </ul>
+        </div>
+
+        <div class="result-section">
+            <h2 id="result-title" style="display:none;">Hasil Tabel Kebenaran</h2>
+            <div id="table-container"></div>
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript untuk Fungsionalitas Aplikasi
+        document.getElementById('generate-btn').addEventListener('click', generateTable);
+        document.getElementById('expression-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateTable();
+            }
+        });
+
+        function generateTable() {
+            const expression = document.getElementById('expression-input').value.trim();
+            const tableContainer = document.getElementById('table-container');
+            const resultTitle = document.getElementById('result-title');
+            const errorMessage = document.getElementById('error-message');
+
+            // Reset tampilan
+            tableContainer.innerHTML = '';
+            errorMessage.style.display = 'none';
+            resultTitle.style.display = 'none';
+
+            if (!expression) {
+                showError("Ekspresi tidak boleh kosong.");
+                return;
+            }
+
+            try {
+                // 1. Dapatkan variabel unik dari ekspresi
+                const variables = [...new Set(expression.match(/[a-zA-Z]/g))].sort();
+                if (variables.length === 0) {
+                    showError("Tidak ditemukan variabel (p, q, dll.) dalam ekspresi.");
+                    return;
+                }
+                if (variables.length > 8) {
+                    showError("Terlalu banyak variabel (maksimal 8) untuk performa.");
+                    return;
+                }
+
+                // 2. Buat header tabel
+                const table = document.createElement('table');
+                const thead = table.createTHead();
+                const headerRow = thead.insertRow();
+                variables.forEach(v => {
+                    const th = document.createElement('th');
+                    th.textContent = v;
+                    headerRow.appendChild(th);
+                });
+                const thResult = document.createElement('th');
+                thResult.textContent = expression;
+                headerRow.appendChild(thResult);
+
+                // 3. Buat baris-baris tabel
+                const tbody = table.createTBody();
+                const rowCount = 2 ** variables.length;
+
+                for (let i = 0; i < rowCount; i++) {
+                    const row = tbody.insertRow();
+                    const truthValues = {};
+                    
+                    // Buat kombinasi nilai true/false untuk setiap variabel
+                    for (let j = 0; j < variables.length; j++) {
+                        const cell = row.insertCell();
+                        const val = ((i >> (variables.length - 1 - j)) & 1) === 1;
+                        truthValues[variables[j]] = val;
+                        cell.innerHTML = val ? '<span class="true">B</span>' : '<span class="false">S</span>';
+                    }
+
+                    // 4. Evaluasi ekspresi untuk kombinasi saat ini
+                    const result = evaluateExpression(expression, truthValues);
+                    const resultCell = row.insertCell();
+                    resultCell.innerHTML = result ? '<span class="true">B</span>' : '<span class="false">S</span>';
+                }
+
+                tableContainer.appendChild(table);
+                resultTitle.style.display = 'block';
+
+            } catch (error) {
+                showError("Error: Ekspresi tidak valid. Periksa sintaks Anda. " + error.message);
+                console.error(error);
+            }
+        }
+
+        function evaluateExpression(expr, values) {
+            // Ganti operator custom dengan yang bisa dievaluasi JS
+            let evalExpr = expr.replace(/([a-zA-Z])/g, 'values["$1"]');
+            evalExpr = evalExpr.replace(/<->/g, '==');
+            evalExpr = evalExpr.replace(/->/g, '<='); // Trik logika: p -> q sama dengan !p || q, dan p <= q juga sama untuk boolean
+            
+            // Evaluasi menggunakan Function constructor untuk keamanan (lebih aman dari eval())
+            const evaluator = new Function('values', `return ${evalExpr};`);
+            return evaluator(values);
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+    </script>
+</body>
+</html>
